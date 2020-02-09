@@ -1,14 +1,7 @@
 import os
-import numpy as np
 import pandas as pd
-import scipy
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from sklearn.model_selection import cross_validate
-from sklearn.metrics import roc_curve, auc, classification_report
-from sklearn.utils import shuffle
-
-from lib import process_source_folder, get_intersection_vocabulary,get_union_vocabulary, plot_roc_curve
+from lib import process_source_folder
+from lib import  plot_roc_curve,balance_data
 
 CURRENT_PATH = os.path.abspath('')
 TRANING_SET_PATH = os.path.join(CURRENT_PATH,"./dataset/training")
@@ -40,4 +33,4 @@ def load_data():
     for topic in raw_testing_data['topic'].unique():
         count = len(raw_testing_data[raw_testing_data['topic']==topic])
         print(f'{topic}: count: {count}')
-    return raw_testing_data,raw_traning_data
+    return raw_traning_data,raw_testing_data
