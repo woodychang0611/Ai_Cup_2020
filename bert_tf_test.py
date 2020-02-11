@@ -12,6 +12,7 @@ from sklearn import svm
 from collections import Counter
 import matplotlib.pyplot as plt
 from lib import  get_intersection_vocabulary,get_union_vocabulary, plot_roc_curve,balance_data
+from tf_model import get_nn_model
 
 # Load pre-trained model tokenizer (vocabulary)
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -55,12 +56,6 @@ for i in range(0,data_count):
 print(x_traning)
 y_traning = np.asarray(raw_traning_data['is_rumour'])
 
-model = RandomForestClassifier(n_estimators=100)
-#model = svm.SVC(gamma='auto',probability=True)
-score = cross_validate(model,x_traning,y_traning,cv=5,scoring="accuracy")
-model.fit(x_traning,y_traning)
-print(f'Cross validation score: {np.mean(score["test_score"])}')
-
 #test data
 bert_ids_data_testing= list (map (lambda t:bert_process_text(t),(list(raw_testing_data['text']))))
 data_count = len(bert_ids_data_testing)
@@ -74,12 +69,16 @@ for i in range(0,data_count):
 
 y_testing = np.asarray(raw_testing_data['is_rumour'])
 
-#testing
-y_testing_predict = model.predict(x_testing)
-y_testing_predict_probabilities = model.predict_proba(x_testing)
 
+#Train model
+model =get_nn_model(x_traning.shape[1])
+history = model.fit(x_traning, y_traning, epochs=30, batch_size=75)
+#Test Model
+y = model.predict(x_testing)
+y_testing_predict = list(map(lambda x:0 if x[0]<0.5 else 1,y))
+y_score = list(map(lambda x:  x[0],y))
+print(y_testing_predict)
 print (classification_report(y_testing, y_testing_predict))
-y_score = y_testing_predict_probabilities[:,1]
 false_positive_rate, true_positive_rate, thresholds = roc_curve(y_testing, y_score)
 
 # Plotting

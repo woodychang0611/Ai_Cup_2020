@@ -1,14 +1,12 @@
-import os
+import tensorflow as tf
 import numpy as np
-import pandas as pd
-import scipy
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from sklearn.model_selection import cross_validate
-from sklearn.metrics import roc_curve, auc, classification_report
 from lib import  get_intersection_vocabulary,get_union_vocabulary, plot_roc_curve,balance_data
 from load_data_set import load_data
-from sklearn import svm
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.metrics import roc_curve, auc, classification_report
+from tf_model import get_nn_model
+
+
 #Read data set
 raw_traning_data,raw_testing_data = load_data()
 
@@ -28,23 +26,21 @@ x_traning = vectorizer.transform(raw_traning_data['text']).toarray()
 y_traning = np.asarray(raw_traning_data['is_rumour'])
 x_testing = vectorizer.transform(raw_testing_data['text']).toarray()
 y_testing = np.asarray(raw_testing_data['is_rumour'])
-#transform to sparse matrix to incrase speed, somehow numpy array is slower
-#x_testing = scipy.sparse.csr_matrix(x_testing)
 
+print(type(x_traning))
+print(type(y_testing))
 #Train model
-model = RandomForestClassifier(n_estimators=100)
-#model = svm.SVC(gamma='auto',probability=True)
-
-score = cross_validate(model,x_traning,y_traning,cv=5,scoring="accuracy")
-model.fit(x_traning,y_traning)
-print(f'Cross validation score: {np.mean(score["test_score"])}')
-
+model = get_nn_model(x_traning.shape[1])
+model =get_nn_model(x_traning.shape[1])
+history = model.fit(x_traning, y_traning, epochs=30, batch_size=75)
 #Test Model
-y_testing_predict = model.predict(x_testing)
+y = model.predict(x_testing)
+y_testing_predict = list(map(lambda x:0 if x[0]<0.5 else 1,y))
+y_score = list(map(lambda x:  x[0],y))
+print(y_testing_predict)
 y_testing_predict_probabilities = model.predict_proba(x_testing)
-
 print (classification_report(y_testing, y_testing_predict))
-y_score = y_testing_predict_probabilities[:,1]
+
 false_positive_rate, true_positive_rate, thresholds = roc_curve(y_testing, y_score)
 
 # Plotting
