@@ -16,7 +16,7 @@ raw_traning_data,raw_testing_data = load_data()
 
 # #balance the traning and testing set 
 raw_traning_data = balance_data(raw_traning_data,'is_rumour')
-#raw_testing_data = balance_data(raw_testing_data,'is_rumour')
+raw_testing_data = balance_data(raw_testing_data,'is_rumour')
 vocabularies = get_intersection_vocabulary(raw_traning_data)
 print(f'len of vocabularies :{len(vocabularies)}')
 
@@ -32,7 +32,7 @@ print(type(y_testing))
 #Train model
 model = get_nn_model(x_traning.shape[1])
 model =get_nn_model(x_traning.shape[1])
-history = model.fit(x_traning, y_traning, epochs=30, batch_size=75)
+history = model.fit(x_traning, y_traning, epochs=50, batch_size=100)
 #Test Model
 y = model.predict(x_testing)
 y_testing_predict = list(map(lambda x:0 if x[0]<0.5 else 1,y))

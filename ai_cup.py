@@ -16,9 +16,14 @@ raw_traning_data,raw_testing_data = load_data()
 #topics = raw_traning_data['topic'].unique()
 #raw_traning_data = raw_traning_data[raw_traning_data['topic'] ==topics[0]]
 
+
+#raw_traning_data = raw_traning_data.sample(frac=1)
+#raw_testing_data = raw_traning_data[-100:]
+#raw_traning_data = raw_traning_data[:-100]
+
 # #balance the traning and testing set 
 raw_traning_data = balance_data(raw_traning_data,'is_rumour')
-#raw_testing_data = balance_data(raw_testing_data,'is_rumour')
+raw_testing_data = balance_data(raw_testing_data,'is_rumour')
 vocabularies = get_intersection_vocabulary(raw_traning_data)
 print(f'len of vocabularies :{len(vocabularies)}')
 

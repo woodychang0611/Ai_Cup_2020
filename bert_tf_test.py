@@ -20,8 +20,12 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 raw_traning_data,raw_testing_data = load_data()
 
 #keep only one topic
-#topics = raw_traning_data['topic'].unique()
-#raw_traning_data = raw_traning_data[raw_traning_data['topic'] ==topics[0]]
+if(False):
+    topics = raw_traning_data['topic'].unique()
+    raw_traning_data = raw_traning_data[raw_traning_data['topic'] ==topics[0]]
+    raw_traning_data = raw_traning_data.sample(frac=1)
+    raw_testing_data = raw_traning_data[-100:]
+    raw_traning_data = raw_traning_data[:-100]
 
 #balance the traning and testing set 
 raw_traning_data = balance_data(raw_traning_data,'is_rumour')
@@ -56,6 +60,7 @@ for i in range(0,data_count):
 print(x_traning)
 y_traning = np.asarray(raw_traning_data['is_rumour'])
 
+
 #test data
 bert_ids_data_testing= list (map (lambda t:bert_process_text(t),(list(raw_testing_data['text']))))
 data_count = len(bert_ids_data_testing)
@@ -72,7 +77,7 @@ y_testing = np.asarray(raw_testing_data['is_rumour'])
 
 #Train model
 model =get_nn_model(x_traning.shape[1])
-history = model.fit(x_traning, y_traning, epochs=30, batch_size=75)
+history = model.fit(x_traning, y_traning, epochs=30, batch_size=100)
 #Test Model
 y = model.predict(x_testing)
 y_testing_predict = list(map(lambda x:0 if x[0]<0.5 else 1,y))
